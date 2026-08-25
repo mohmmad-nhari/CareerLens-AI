@@ -8,8 +8,8 @@ from sentence_transformers import SentenceTransformer, util
 # PAGE SETTINGS
 # =========================================================
 st.set_page_config(
-    page_title="AI Resume Matcher",
-    page_icon="🤖",
+    page_title="CareerLens AI",
+    page_icon="🔮",
     layout="wide"
 )
 
@@ -151,15 +151,6 @@ st.markdown(
         color: #e3e8f3;
     }
 
-    .small-muted {
-        color: #8c96aa;
-        font-size: 13px;
-    }
-
-    div[data-testid="stFileUploader"] {
-        border-radius: 18px;
-    }
-
     div[data-testid="stTextArea"] textarea {
         border-radius: 16px !important;
     }
@@ -186,7 +177,7 @@ st.markdown(
 
 
 # =========================================================
-# HELPER FUNCTIONS
+# HELPERS
 # =========================================================
 def score_class(score):
     if score >= 75:
@@ -224,7 +215,7 @@ model = load_ai_model()
 
 
 # =========================================================
-# PDF
+# PDF EXTRACTION
 # =========================================================
 def extract_text_from_pdf(pdf_file):
     reader = PdfReader(pdf_file)
@@ -340,7 +331,7 @@ def calculate_overall_score(
 
 
 # =========================================================
-# ATS
+# ATS ANALYSIS
 # =========================================================
 def calculate_ats_readiness(
     resume_text,
@@ -359,13 +350,10 @@ def calculate_ats_readiness(
 
     if email_found:
         ats_score += 10
-        checks.append(
-            ("pass", "Email address detected.")
-        )
+        checks.append(("pass", "Email address detected."))
     else:
-        checks.append(
-            ("fail", "No email address detected.")
-        )
+        checks.append(("fail", "No email address detected."))
+
 
     phone_found = re.search(
         r"(\+?\d[\d\s\-\(\)]{7,}\d)",
@@ -374,13 +362,10 @@ def calculate_ats_readiness(
 
     if phone_found:
         ats_score += 10
-        checks.append(
-            ("pass", "Phone number detected.")
-        )
+        checks.append(("pass", "Phone number detected."))
     else:
-        checks.append(
-            ("fail", "No phone number detected.")
-        )
+        checks.append(("fail", "No phone number detected."))
+
 
     education_keywords = [
         "education",
@@ -397,26 +382,22 @@ def calculate_ats_readiness(
 
     if education_found:
         ats_score += 10
-        checks.append(
-            ("pass", "Education information detected.")
-        )
+        checks.append(("pass", "Education information detected."))
     else:
-        checks.append(
-            ("fail", "Education section may be missing.")
-        )
+        checks.append(("fail", "Education section may be missing."))
+
 
     if (
         "skills" in text
         or len(find_skills(resume_text)) >= 3
     ):
         ats_score += 10
-        checks.append(
-            ("pass", "Skills information detected.")
-        )
+        checks.append(("pass", "Skills information detected."))
     else:
         checks.append(
             ("fail", "A clear skills section is recommended.")
         )
+
 
     experience_keywords = [
         "experience",
@@ -435,10 +416,7 @@ def calculate_ats_readiness(
     if experience_found:
         ats_score += 15
         checks.append(
-            (
-                "pass",
-                "Experience or project information detected."
-            )
+            ("pass", "Experience or project information detected.")
         )
     else:
         checks.append(
@@ -447,6 +425,7 @@ def calculate_ats_readiness(
                 "Consider adding experience, internships, or projects."
             )
         )
+
 
     if job_skills:
         coverage = (
@@ -464,12 +443,12 @@ def calculate_ats_readiness(
             )
         )
 
-    word_count = len(
-        resume_text.split()
-    )
+
+    word_count = len(resume_text.split())
 
     if 200 <= word_count <= 1200:
         ats_score += 15
+
         checks.append(
             (
                 "pass",
@@ -479,6 +458,7 @@ def calculate_ats_readiness(
 
     elif word_count < 200:
         ats_score += 5
+
         checks.append(
             (
                 "warning",
@@ -488,6 +468,7 @@ def calculate_ats_readiness(
 
     else:
         ats_score += 8
+
         checks.append(
             (
                 "warning",
@@ -523,6 +504,7 @@ def analyze_resume_sections(resume_text):
         )
     )
 
+
     summary_keywords = [
         "summary",
         "professional summary",
@@ -540,6 +522,7 @@ def analyze_resume_sections(resume_text):
             )
         )
     )
+
 
     education_keywords = [
         "education",
@@ -559,6 +542,7 @@ def analyze_resume_sections(resume_text):
         )
     )
 
+
     sections.append(
         (
             "Technical Skills",
@@ -568,6 +552,7 @@ def analyze_resume_sections(resume_text):
             )
         )
     )
+
 
     project_keywords = [
         "project",
@@ -585,6 +570,7 @@ def analyze_resume_sections(resume_text):
         )
     )
 
+
     experience_keywords = [
         "work experience",
         "experience",
@@ -601,6 +587,7 @@ def analyze_resume_sections(resume_text):
             )
         )
     )
+
 
     certification_keywords = [
         "certification",
@@ -621,6 +608,7 @@ def analyze_resume_sections(resume_text):
             )
         )
     )
+
 
     language_keywords = [
         "languages",
@@ -667,6 +655,7 @@ def generate_recommendations(
             "Your resume currently has a low match for this role."
         )
 
+
     if matched_skills:
         matched_text = ", ".join(
             skill.title()
@@ -676,6 +665,7 @@ def generate_recommendations(
         recommendations.append(
             f"Strong matches: {matched_text}."
         )
+
 
     if missing_skills:
         missing_text = ", ".join(
@@ -699,27 +689,27 @@ def generate_recommendations(
 # =========================================================
 with st.sidebar:
 
-    st.markdown("## 🤖 AI Resume Matcher")
+    st.markdown("## 🔮 CareerLens AI")
 
     st.caption(
-        "Smart resume analysis powered by semantic AI."
+        "AI-powered career intelligence and resume analysis."
     )
 
     st.divider()
 
-    st.markdown("### What it analyzes")
+    st.markdown("### What CareerLens analyzes")
 
     st.write("🎯 Job Skill Match")
     st.write("🧠 Semantic Similarity")
     st.write("📊 ATS Readiness")
-    st.write("📋 Resume Sections")
-    st.write("💡 Recommendations")
+    st.write("📋 Resume Structure")
+    st.write("💡 Smart Recommendations")
 
     st.divider()
 
     st.caption(
         "All scores are estimates and should not be treated "
-        "as employer decisions."
+        "as employer hiring decisions."
     )
 
 
@@ -730,12 +720,12 @@ st.markdown(
     """
     <div class="hero">
         <div class="hero-title">
-            🤖 AI Resume Matcher
+            🔮 CareerLens AI
         </div>
         <div class="hero-subtitle">
             Analyze your resume against a job description using
             semantic AI, skill matching, ATS readiness checks,
-            and actionable recommendations.
+            and intelligent career recommendations.
         </div>
     </div>
     """,
@@ -812,7 +802,7 @@ if analyze_button:
     else:
 
         with st.spinner(
-            "AI is analyzing your resume..."
+            "CareerLens AI is analyzing your resume..."
         ):
 
             try:
@@ -828,11 +818,13 @@ if analyze_button:
                 )
                 st.stop()
 
+
             if not resume_text.strip():
                 st.error(
                     "No readable text was found in the PDF."
                 )
                 st.stop()
+
 
             resume_skills = find_skills(
                 resume_text
@@ -842,11 +834,13 @@ if analyze_button:
                 job_description
             )
 
+
             matched_skills = [
                 skill
                 for skill in job_skills
                 if skill in resume_skills
             ]
+
 
             missing_skills = [
                 skill
@@ -854,14 +848,18 @@ if analyze_button:
                 if skill not in resume_skills
             ]
 
+
             if job_skills:
+
                 skills_score = (
                     len(matched_skills)
                     /
                     len(job_skills)
                 ) * 100
+
             else:
                 skills_score = 0
+
 
             semantic_score = (
                 calculate_semantic_similarity(
@@ -870,12 +868,14 @@ if analyze_button:
                 )
             )
 
+
             overall_score = (
                 calculate_overall_score(
                     skills_score,
                     semantic_score
                 )
             )
+
 
             ats_score, ats_checks = (
                 calculate_ats_readiness(
@@ -885,11 +885,13 @@ if analyze_button:
                 )
             )
 
+
             resume_sections = (
                 analyze_resume_sections(
                     resume_text
                 )
             )
+
 
             recommendations = (
                 generate_recommendations(
@@ -901,7 +903,7 @@ if analyze_button:
 
 
         st.success(
-            "Analysis completed successfully."
+            "CareerLens AI analysis completed successfully."
         )
 
 
@@ -918,12 +920,14 @@ if analyze_button:
             gap="medium"
         )
 
+
         with score1:
             render_score_card(
                 "Overall Match",
                 overall_score,
                 "🏆"
             )
+
 
         with score2:
             render_score_card(
@@ -932,12 +936,14 @@ if analyze_button:
                 "🎯"
             )
 
+
         with score3:
             render_score_card(
                 "Semantic AI",
                 semantic_score,
                 "🧠"
             )
+
 
         with score4:
             render_score_card(
@@ -947,16 +953,20 @@ if analyze_button:
             )
 
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown(
+            "<br>",
+            unsafe_allow_html=True
+        )
 
 
         # =================================================
-        # MATCHED / MISSING
+        # MATCHED / MISSING SKILLS
         # =================================================
         skill_col1, skill_col2 = st.columns(
             2,
             gap="large"
         )
+
 
         with skill_col1:
 
@@ -965,21 +975,19 @@ if analyze_button:
                 unsafe_allow_html=True
             )
 
-            st.markdown(
-                '<div class="glass-card">',
-                unsafe_allow_html=True
-            )
 
             if matched_skills:
 
                 skill_html = ""
 
                 for skill in matched_skills:
+
                     skill_html += (
                         f'<span class="skill-good">'
                         f'✓ {skill.title()}'
                         f'</span>'
                     )
+
 
                 st.markdown(
                     skill_html,
@@ -987,14 +995,10 @@ if analyze_button:
                 )
 
             else:
+
                 st.write(
                     "No matched skills detected."
                 )
-
-            st.markdown(
-                "</div>",
-                unsafe_allow_html=True
-            )
 
 
         with skill_col2:
@@ -1004,21 +1008,19 @@ if analyze_button:
                 unsafe_allow_html=True
             )
 
-            st.markdown(
-                '<div class="glass-card">',
-                unsafe_allow_html=True
-            )
 
             if missing_skills:
 
                 skill_html = ""
 
                 for skill in missing_skills:
+
                     skill_html += (
                         f'<span class="skill-missing">'
                         f'• {skill.title()}'
                         f'</span>'
                     )
+
 
                 st.markdown(
                     skill_html,
@@ -1026,14 +1028,16 @@ if analyze_button:
                 )
 
             else:
+
                 st.write(
                     "No missing skills detected."
                 )
 
-            st.markdown(
-                "</div>",
-                unsafe_allow_html=True
-            )
+
+        st.markdown(
+            "<br>",
+            unsafe_allow_html=True
+        )
 
 
         # =================================================
@@ -1044,13 +1048,16 @@ if analyze_button:
             unsafe_allow_html=True
         )
 
+
         st.progress(
             int(ats_score)
         )
 
+
         st.caption(
             "Estimated readiness only — not an employer ATS score."
         )
+
 
         with st.expander(
             "View detailed ATS checks"
@@ -1070,6 +1077,7 @@ if analyze_button:
                 else:
                     icon = "ℹ️"
 
+
                 st.markdown(
                     f"""
                     <div class="check-item">
@@ -1081,14 +1089,16 @@ if analyze_button:
 
 
         # =================================================
-        # RESUME SECTIONS
+        # RESUME STRUCTURE
         # =================================================
         st.markdown(
             '<div class="section-title">📋 Resume Structure</div>',
             unsafe_allow_html=True
         )
 
+
         section_cols = st.columns(2)
+
 
         for index, (
             section_name,
@@ -1099,9 +1109,11 @@ if analyze_button:
                 index % 2
             ]
 
+
             with target_col:
 
                 if found:
+
                     st.markdown(
                         f"""
                         <div class="check-item">
@@ -1112,6 +1124,7 @@ if analyze_button:
                     )
 
                 else:
+
                     st.markdown(
                         f"""
                         <div class="check-item">
@@ -1130,6 +1143,7 @@ if analyze_button:
             unsafe_allow_html=True
         )
 
+
         for recommendation in recommendations:
 
             st.markdown(
@@ -1143,7 +1157,7 @@ if analyze_button:
 
 
         # =================================================
-        # DETAILS
+        # EXTRACTED RESUME TEXT
         # =================================================
         with st.expander(
             "📄 View extracted resume text"
