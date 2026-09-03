@@ -20,7 +20,6 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-
     .stApp {
         background:
             radial-gradient(circle at top left, rgba(58, 123, 213, 0.12), transparent 30%),
@@ -60,15 +59,6 @@ st.markdown(
         max-width: 820px;
     }
 
-    .glass-card {
-        padding: 24px;
-        border-radius: 22px;
-        background: rgba(20, 27, 45, 0.86);
-        border: 1px solid rgba(255,255,255,0.08);
-        box-shadow: 0 10px 35px rgba(0,0,0,0.25);
-        margin-bottom: 18px;
-    }
-
     .score-card {
         text-align: center;
         padding: 22px;
@@ -94,17 +84,9 @@ st.markdown(
         line-height: 1;
     }
 
-    .score-good {
-        color: #39d98a;
-    }
-
-    .score-mid {
-        color: #ffcc66;
-    }
-
-    .score-low {
-        color: #ff6b6b;
-    }
+    .score-good { color: #39d98a; }
+    .score-mid  { color: #ffcc66; }
+    .score-low  { color: #ff6b6b; }
 
     .section-title {
         font-size: 26px;
@@ -121,6 +103,17 @@ st.markdown(
         border-radius: 999px;
         margin: 5px 5px 5px 0;
         border: 1px solid rgba(57, 217, 138, 0.25);
+        font-size: 14px;
+    }
+
+    .skill-partial {
+        display: inline-block;
+        background: rgba(255, 204, 102, 0.12);
+        color: #ffd67a;
+        padding: 8px 12px;
+        border-radius: 999px;
+        margin: 5px 5px 5px 0;
+        border: 1px solid rgba(255, 204, 102, 0.28);
         font-size: 14px;
     }
 
@@ -169,7 +162,6 @@ st.markdown(
     hr {
         border-color: rgba(255,255,255,0.08) !important;
     }
-
     </style>
     """,
     unsafe_allow_html=True
@@ -182,21 +174,17 @@ st.markdown(
 def score_class(score):
     if score >= 75:
         return "score-good"
-    elif score >= 50:
+    if score >= 50:
         return "score-mid"
     return "score-low"
 
 
 def render_score_card(title, value, icon):
-    color_class = score_class(value)
-
     st.markdown(
         f"""
         <div class="score-card">
             <div class="score-label">{icon} {title}</div>
-            <div class="score-value {color_class}">
-                {value:.0f}%
-            </div>
+            <div class="score-value {score_class(value)}">{value:.0f}%</div>
         </div>
         """,
         unsafe_allow_html=True
@@ -223,7 +211,6 @@ def extract_text_from_pdf(pdf_file):
 
     for page in reader.pages:
         page_text = page.extract_text()
-
         if page_text:
             text += page_text + "\n"
 
@@ -274,33 +261,102 @@ skills_list = [
     "software testing",
     "problem solving",
     "communication",
-    "teamwork"
+    "teamwork",
 ]
+
+skill_aliases = {
+    "artificial intelligence": ["artificial intelligence", "ai"],
+    "machine learning": ["machine learning", "ml"],
+    "javascript": ["javascript", "java script", "js"],
+    "typescript": ["typescript", "type script", "ts"],
+    "scikit-learn": ["scikit-learn", "scikit learn", "sklearn"],
+    "tensorflow": ["tensorflow", "tensor flow"],
+    "pytorch": ["pytorch", "py torch"],
+    "opencv": ["opencv", "open cv", "cv2"],
+    "github": ["github", "git hub"],
+    "raspberry pi": ["raspberry pi", "raspberrypi"],
+    "sql": ["sql", "structured query language"],
+    "html": ["html", "html5"],
+    "css": ["css", "css3"],
+    "c++": ["c++", "cpp"],
+    "c#": ["c#", "c sharp"],
+}
+
+
+def normalize_text(text):
+    text = text.lower()
+    text = re.sub(r"\s+", " ", text)
+    return text
+
+
+def contains_skill(text, term):
+    term = term.lower().strip()
+    pattern = r"(?<!\w)" + re.escape(term) + r"(?!\w)"
+    return re.search(pattern, text) is not None
 
 
 def find_skills(text):
-    text = text.lower()
+    text = normalize_text(text)
     found_skills = []
 
     for skill in skills_list:
-        if skill in text:
+        aliases = skill_aliases.get(skill, [skill])
+        if any(contains_skill(text, alias) for alias in aliases):
             found_skills.append(skill)
 
     return found_skills
 
 
+def classify_skill_matches(job_skills, resume_skills):
+    """
+    Classify required job skills into:
+    - exact matches
+    - partial/related matches
+    - missing skills
+    """
+    matched_skills = []
+    partial_matches = []
+    missing_skills = []
+
+    related_skills = {
+        "github": ["git"],
+        "git": ["github"],
+        "tensorflow": ["machine learning", "deep learning"],
+        "pytorch": ["machine learning", "deep learning"],
+        "scikit-learn": ["machine learning"],
+        "opencv": ["artificial intelligence"],
+        "flask": ["python"],
+        "django": ["python"],
+        "fastapi": ["python"],
+        "mysql": ["sql"],
+        "postgresql": ["sql"],
+        "pandas": ["python", "data analysis"],
+        "numpy": ["python", "data analysis"],
+        "raspberry pi": ["robotics"],
+    }
+
+    for skill in job_skills:
+        if skill in resume_skills:
+            matched_skills.append(skill)
+            continue
+
+        related = related_skills.get(skill, [])
+        if any(related_skill in resume_skills for related_skill in related):
+            partial_matches.append(skill)
+        else:
+            missing_skills.append(skill)
+
+    return matched_skills, partial_matches, missing_skills
+
+
 # =========================================================
 # SEMANTIC AI
 # =========================================================
-def calculate_semantic_similarity(
-    resume_text,
-    job_description
-):
+def calculate_semantic_similarity(resume_text, job_description):
     resume_embedding = model.encode(
         resume_text,
         convert_to_tensor=True
     )
-
     job_embedding = model.encode(
         job_description,
         convert_to_tensor=True
@@ -311,23 +367,12 @@ def calculate_semantic_similarity(
         job_embedding
     ).item()
 
-    similarity = max(
-        0,
-        min(similarity, 1)
-    )
-
+    similarity = max(0, min(similarity, 1))
     return similarity * 100
 
 
-def calculate_overall_score(
-    skills_score,
-    semantic_score
-):
-    return (
-        skills_score * 0.60
-        +
-        semantic_score * 0.40
-    )
+def calculate_overall_score(skills_score, semantic_score):
+    return (skills_score * 0.60) + (semantic_score * 0.40)
 
 
 # =========================================================
@@ -336,10 +381,10 @@ def calculate_overall_score(
 def calculate_ats_readiness(
     resume_text,
     job_skills,
-    matched_skills
+    matched_skills,
+    partial_matches
 ):
     text = resume_text.lower()
-
     ats_score = 0
     checks = []
 
@@ -354,7 +399,6 @@ def calculate_ats_readiness(
     else:
         checks.append(("fail", "No email address detected."))
 
-
     phone_found = re.search(
         r"(\+?\d[\d\s\-\(\)]{7,}\d)",
         resume_text
@@ -366,15 +410,13 @@ def calculate_ats_readiness(
     else:
         checks.append(("fail", "No phone number detected."))
 
-
     education_keywords = [
         "education",
         "university",
         "college",
         "bachelor",
-        "degree"
+        "degree",
     ]
-
     education_found = any(
         keyword in text
         for keyword in education_keywords
@@ -386,18 +428,11 @@ def calculate_ats_readiness(
     else:
         checks.append(("fail", "Education section may be missing."))
 
-
-    if (
-        "skills" in text
-        or len(find_skills(resume_text)) >= 3
-    ):
+    if "skills" in text or len(find_skills(resume_text)) >= 3:
         ats_score += 10
         checks.append(("pass", "Skills information detected."))
     else:
-        checks.append(
-            ("fail", "A clear skills section is recommended.")
-        )
-
+        checks.append(("fail", "A clear skills section is recommended."))
 
     experience_keywords = [
         "experience",
@@ -405,9 +440,8 @@ def calculate_ats_readiness(
         "work experience",
         "projects",
         "project",
-        "internship"
+        "internship",
     ]
-
     experience_found = any(
         keyword in text
         for keyword in experience_keywords
@@ -415,65 +449,42 @@ def calculate_ats_readiness(
 
     if experience_found:
         ats_score += 15
-        checks.append(
-            ("pass", "Experience or project information detected.")
-        )
+        checks.append(("pass", "Experience or project information detected."))
     else:
         checks.append(
-            (
-                "fail",
-                "Consider adding experience, internships, or projects."
-            )
+            ("fail", "Consider adding experience, internships, or projects.")
         )
-
 
     if job_skills:
-        coverage = (
+        weighted_coverage = (
             len(matched_skills)
-            /
-            len(job_skills)
-        )
+            + (len(partial_matches) * 0.5)
+        ) / len(job_skills)
 
-        ats_score += coverage * 30
-
+        ats_score += weighted_coverage * 30
         checks.append(
             (
                 "info",
-                f"Job skill coverage: {coverage * 100:.0f}%."
+                f"Weighted job skill coverage: {weighted_coverage * 100:.0f}%."
             )
         )
-
 
     word_count = len(resume_text.split())
 
     if 200 <= word_count <= 1200:
         ats_score += 15
-
         checks.append(
-            (
-                "pass",
-                f"Resume length looks reasonable ({word_count} words)."
-            )
+            ("pass", f"Resume length looks reasonable ({word_count} words).")
         )
-
     elif word_count < 200:
         ats_score += 5
-
         checks.append(
-            (
-                "warning",
-                f"Resume may be too short ({word_count} words)."
-            )
+            ("warning", f"Resume may be too short ({word_count} words).")
         )
-
     else:
         ats_score += 8
-
         checks.append(
-            (
-                "warning",
-                f"Resume may be too long ({word_count} words)."
-            )
+            ("warning", f"Resume may be too long ({word_count} words).")
         )
 
     return min(ats_score, 100), checks
@@ -484,110 +495,80 @@ def calculate_ats_readiness(
 # =========================================================
 def analyze_resume_sections(resume_text):
     text = resume_text.lower()
-
     sections = []
 
     email_found = re.search(
         r"[\w\.-]+@[\w\.-]+\.\w+",
         resume_text
     )
-
     phone_found = re.search(
         r"(\+?\d[\d\s\-\(\)]{7,}\d)",
         resume_text
     )
 
     sections.append(
-        (
-            "Contact Information",
-            bool(email_found or phone_found)
-        )
+        ("Contact Information", bool(email_found or phone_found))
     )
-
 
     summary_keywords = [
         "summary",
         "professional summary",
         "profile",
         "objective",
-        "career objective"
+        "career objective",
     ]
-
     sections.append(
         (
             "Professional Summary",
-            any(
-                keyword in text
-                for keyword in summary_keywords
-            )
+            any(keyword in text for keyword in summary_keywords),
         )
     )
-
 
     education_keywords = [
         "education",
         "university",
         "college",
         "bachelor",
-        "degree"
+        "degree",
     ]
-
     sections.append(
         (
             "Education",
-            any(
-                keyword in text
-                for keyword in education_keywords
-            )
+            any(keyword in text for keyword in education_keywords),
         )
     )
-
 
     sections.append(
         (
             "Technical Skills",
-            (
-                "skills" in text
-                or len(find_skills(resume_text)) >= 3
-            )
+            "skills" in text or len(find_skills(resume_text)) >= 3,
         )
     )
-
 
     project_keywords = [
         "project",
         "projects",
-        "graduation project"
+        "graduation project",
     ]
-
     sections.append(
         (
             "Projects",
-            any(
-                keyword in text
-                for keyword in project_keywords
-            )
+            any(keyword in text for keyword in project_keywords),
         )
     )
-
 
     experience_keywords = [
         "work experience",
         "experience",
         "employment",
-        "internship"
+        "internship",
     ]
-
     sections.append(
         (
             "Work Experience",
-            any(
-                keyword in text
-                for keyword in experience_keywords
-            )
+            any(keyword in text for keyword in experience_keywords),
         )
     )
-
 
     certification_keywords = [
         "certification",
@@ -596,34 +577,25 @@ def analyze_resume_sections(resume_text):
         "certificates",
         "course",
         "courses",
-        "academy"
+        "academy",
     ]
-
     sections.append(
         (
             "Certifications / Courses",
-            any(
-                keyword in text
-                for keyword in certification_keywords
-            )
+            any(keyword in text for keyword in certification_keywords),
         )
     )
-
 
     language_keywords = [
         "languages",
         "language",
         "arabic",
-        "english"
+        "english",
     ]
-
     sections.append(
         (
             "Languages",
-            any(
-                keyword in text
-                for keyword in language_keywords
-            )
+            any(keyword in text for keyword in language_keywords),
         )
     )
 
@@ -635,6 +607,7 @@ def analyze_resume_sections(resume_text):
 # =========================================================
 def generate_recommendations(
     matched_skills,
+    partial_matches,
     missing_skills,
     overall_score
 ):
@@ -644,39 +617,42 @@ def generate_recommendations(
         recommendations.append(
             "Your resume is a strong match for this role."
         )
-
     elif overall_score >= 50:
         recommendations.append(
             "Your resume has a moderate match for this role."
         )
-
     else:
         recommendations.append(
             "Your resume currently has a low match for this role."
         )
-
 
     if matched_skills:
         matched_text = ", ".join(
             skill.title()
             for skill in matched_skills
         )
-
         recommendations.append(
             f"Strong matches: {matched_text}."
         )
 
+    if partial_matches:
+        partial_text = ", ".join(
+            skill.title()
+            for skill in partial_matches
+        )
+        recommendations.append(
+            f"Related experience detected for: {partial_text}. "
+            "If you have direct experience with these tools, mention it explicitly."
+        )
 
     if missing_skills:
         missing_text = ", ".join(
             skill.title()
             for skill in missing_skills
         )
-
         recommendations.append(
             f"Missing or unclear skills: {missing_text}."
         )
-
         recommendations.append(
             "Highlight these skills only if you genuinely have experience with them."
         )
@@ -688,25 +664,22 @@ def generate_recommendations(
 # SIDEBAR
 # =========================================================
 with st.sidebar:
-
     st.markdown("## 🔮 CareerLens AI")
-
     st.caption(
         "AI-powered career intelligence and resume analysis."
     )
 
     st.divider()
-
     st.markdown("### What CareerLens analyzes")
 
     st.write("🎯 Job Skill Match")
+    st.write("🟡 Related Skill Match")
     st.write("🧠 Semantic Similarity")
     st.write("📊 ATS Readiness")
     st.write("📋 Resume Structure")
     st.write("💡 Smart Recommendations")
 
     st.divider()
-
     st.caption(
         "All scores are estimates and should not be treated "
         "as employer hiring decisions."
@@ -719,9 +692,7 @@ with st.sidebar:
 st.markdown(
     """
     <div class="hero">
-        <div class="hero-title">
-            🔮 CareerLens AI
-        </div>
+        <div class="hero-title">🔮 CareerLens AI</div>
         <div class="hero-subtitle">
             Analyze your resume against a job description using
             semantic AI, skill matching, ATS readiness checks,
@@ -741,9 +712,7 @@ left_input, right_input = st.columns(
     gap="large"
 )
 
-
 with left_input:
-
     st.markdown(
         '<div class="section-title">📄 Resume</div>',
         unsafe_allow_html=True
@@ -759,9 +728,7 @@ with left_input:
         "PDF files only. Text-based PDFs work best."
     )
 
-
 with right_input:
-
     st.markdown(
         '<div class="section-title">💼 Job Description</div>',
         unsafe_allow_html=True
@@ -770,12 +737,9 @@ with right_input:
     job_description = st.text_area(
         "Job Description",
         height=220,
-        placeholder=(
-            "Paste the full job description here..."
-        ),
+        placeholder="Paste the full job description here...",
         label_visibility="collapsed"
     )
-
 
 analyze_button = st.button(
     "✨ Analyze Resume",
@@ -788,124 +752,78 @@ analyze_button = st.button(
 # ANALYSIS
 # =========================================================
 if analyze_button:
-
     if uploaded_cv is None:
-        st.warning(
-            "Please upload a resume PDF."
-        )
+        st.warning("Please upload a resume PDF.")
 
     elif not job_description.strip():
-        st.warning(
-            "Please paste a job description."
-        )
+        st.warning("Please paste a job description.")
 
     else:
-
         with st.spinner(
             "CareerLens AI is analyzing your resume..."
         ):
-
             try:
-                resume_text = (
-                    extract_text_from_pdf(
-                        uploaded_cv
-                    )
-                )
-
+                resume_text = extract_text_from_pdf(uploaded_cv)
             except Exception:
-                st.error(
-                    "The PDF could not be read."
-                )
+                st.error("The PDF could not be read.")
                 st.stop()
-
 
             if not resume_text.strip():
-                st.error(
-                    "No readable text was found in the PDF."
-                )
+                st.error("No readable text was found in the PDF.")
                 st.stop()
 
+            resume_skills = find_skills(resume_text)
+            job_skills = find_skills(job_description)
 
-            resume_skills = find_skills(
-                resume_text
+            matched_skills, partial_matches, missing_skills = (
+                classify_skill_matches(
+                    job_skills,
+                    resume_skills
+                )
             )
-
-            job_skills = find_skills(
-                job_description
-            )
-
-
-            matched_skills = [
-                skill
-                for skill in job_skills
-                if skill in resume_skills
-            ]
-
-
-            missing_skills = [
-                skill
-                for skill in job_skills
-                if skill not in resume_skills
-            ]
-
 
             if job_skills:
-
                 skills_score = (
-                    len(matched_skills)
-                    /
-                    len(job_skills)
+                    (
+                        len(matched_skills)
+                        + (len(partial_matches) * 0.5)
+                    )
+                    / len(job_skills)
                 ) * 100
-
             else:
                 skills_score = 0
 
-
-            semantic_score = (
-                calculate_semantic_similarity(
-                    resume_text,
-                    job_description
-                )
+            semantic_score = calculate_semantic_similarity(
+                resume_text,
+                job_description
             )
 
-
-            overall_score = (
-                calculate_overall_score(
-                    skills_score,
-                    semantic_score
-                )
+            overall_score = calculate_overall_score(
+                skills_score,
+                semantic_score
             )
 
-
-            ats_score, ats_checks = (
-                calculate_ats_readiness(
-                    resume_text,
-                    job_skills,
-                    matched_skills
-                )
+            ats_score, ats_checks = calculate_ats_readiness(
+                resume_text,
+                job_skills,
+                matched_skills,
+                partial_matches
             )
 
-
-            resume_sections = (
-                analyze_resume_sections(
-                    resume_text
-                )
+            resume_sections = analyze_resume_sections(
+                resume_text
             )
 
-
-            recommendations = (
-                generate_recommendations(
-                    matched_skills,
-                    missing_skills,
-                    overall_score
-                )
+            recommendations = generate_recommendations(
+                matched_skills,
+                partial_matches,
+                missing_skills,
+                overall_score
             )
-
 
         st.success(
             "CareerLens AI analysis completed successfully."
         )
-
 
         # =================================================
         # SCORE CARDS
@@ -920,14 +838,12 @@ if analyze_button:
             gap="medium"
         )
 
-
         with score1:
             render_score_card(
                 "Overall Match",
                 overall_score,
                 "🏆"
             )
-
 
         with score2:
             render_score_card(
@@ -936,14 +852,12 @@ if analyze_button:
                 "🎯"
             )
 
-
         with score3:
             render_score_card(
                 "Semantic AI",
                 semantic_score,
                 "🧠"
             )
-
 
         with score4:
             render_score_card(
@@ -952,93 +866,126 @@ if analyze_button:
                 "📈"
             )
 
+        st.markdown("<br>", unsafe_allow_html=True)
+                # =================================================
+        # SCORE BREAKDOWN
+        # =================================================
+        skills_contribution = skills_score * 0.60
+        semantic_contribution = semantic_score * 0.40
 
         st.markdown(
-            "<br>",
+            '<div class="section-title">🧮 Score Breakdown</div>',
             unsafe_allow_html=True
         )
 
+        breakdown_col1, breakdown_col2, breakdown_col3 = st.columns(
+            3,
+            gap="medium"
+        )
+
+        with breakdown_col1:
+            st.markdown(
+                f"""
+                <div class="check-item">
+                    🎯 <strong>Skills Contribution</strong><br>
+                    {skills_score:.0f}% × 60% = {skills_contribution:.1f} points
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        with breakdown_col2:
+            st.markdown(
+                f"""
+                <div class="check-item">
+                    🧠 <strong>Semantic Contribution</strong><br>
+                    {semantic_score:.0f}% × 40% = {semantic_contribution:.1f} points
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        with breakdown_col3:
+            st.markdown(
+                f"""
+                <div class="check-item">
+                    🏆 <strong>Overall Match</strong><br>
+                    {skills_contribution:.1f} + {semantic_contribution:.1f}
+                    = {overall_score:.0f}%
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        st.caption(
+            "Overall Match = 60% skill matching + 40% semantic similarity."
+        )
+
+        st.markdown("<br>", unsafe_allow_html=True)
 
         # =================================================
-        # MATCHED / MISSING SKILLS
+        # MATCHED / PARTIAL / MISSING SKILLS
         # =================================================
-        skill_col1, skill_col2 = st.columns(
-            2,
+        skill_col1, skill_col2, skill_col3 = st.columns(
+            3,
             gap="large"
         )
 
-
         with skill_col1:
-
             st.markdown(
                 '<div class="section-title">✅ Matched Skills</div>',
                 unsafe_allow_html=True
             )
 
-
             if matched_skills:
-
-                skill_html = ""
-
-                for skill in matched_skills:
-
-                    skill_html += (
-                        f'<span class="skill-good">'
-                        f'✓ {skill.title()}'
-                        f'</span>'
-                    )
-
-
+                skill_html = "".join(
+                    f'<span class="skill-good">✓ {skill.title()}</span>'
+                    for skill in matched_skills
+                )
                 st.markdown(
                     skill_html,
                     unsafe_allow_html=True
                 )
-
             else:
-
-                st.write(
-                    "No matched skills detected."
-                )
-
+                st.write("No exact skill matches detected.")
 
         with skill_col2:
+            st.markdown(
+                '<div class="section-title">🟡 Related Skills</div>',
+                unsafe_allow_html=True
+            )
 
+            if partial_matches:
+                partial_html = "".join(
+                    f'<span class="skill-partial">≈ {skill.title()}</span>'
+                    for skill in partial_matches
+                )
+                st.markdown(
+                    partial_html,
+                    unsafe_allow_html=True
+                )
+            else:
+                st.write("No related skill matches detected.")
+
+        with skill_col3:
             st.markdown(
                 '<div class="section-title">❌ Missing Skills</div>',
                 unsafe_allow_html=True
             )
 
-
             if missing_skills:
-
-                skill_html = ""
-
-                for skill in missing_skills:
-
-                    skill_html += (
-                        f'<span class="skill-missing">'
-                        f'• {skill.title()}'
-                        f'</span>'
-                    )
-
-
+                skill_html = "".join(
+                    f'<span class="skill-missing">• {skill.title()}</span>'
+                    for skill in missing_skills
+                )
                 st.markdown(
                     skill_html,
                     unsafe_allow_html=True
                 )
-
             else:
+                st.write("No missing skills detected.")
 
-                st.write(
-                    "No missing skills detected."
-                )
-
-
-        st.markdown(
-            "<br>",
-            unsafe_allow_html=True
-        )
-
+        st.markdown("<br>", unsafe_allow_html=True)
 
         # =================================================
         # ATS
@@ -1048,35 +995,22 @@ if analyze_button:
             unsafe_allow_html=True
         )
 
-
-        st.progress(
-            int(ats_score)
-        )
-
+        st.progress(int(ats_score))
 
         st.caption(
             "Estimated readiness only — not an employer ATS score."
         )
 
-
-        with st.expander(
-            "View detailed ATS checks"
-        ):
-
+        with st.expander("View detailed ATS checks"):
             for status, message in ats_checks:
-
                 if status == "pass":
                     icon = "✅"
-
                 elif status == "fail":
                     icon = "❌"
-
                 elif status == "warning":
                     icon = "⚠️"
-
                 else:
                     icon = "ℹ️"
-
 
                 st.markdown(
                     f"""
@@ -1087,7 +1021,6 @@ if analyze_button:
                     unsafe_allow_html=True
                 )
 
-
         # =================================================
         # RESUME STRUCTURE
         # =================================================
@@ -1096,44 +1029,23 @@ if analyze_button:
             unsafe_allow_html=True
         )
 
-
         section_cols = st.columns(2)
 
-
-        for index, (
-            section_name,
-            found
-        ) in enumerate(resume_sections):
-
-            target_col = section_cols[
-                index % 2
-            ]
-
+        for index, (section_name, found) in enumerate(
+            resume_sections
+        ):
+            target_col = section_cols[index % 2]
 
             with target_col:
-
-                if found:
-
-                    st.markdown(
-                        f"""
-                        <div class="check-item">
-                            ✅ {section_name}
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
-                else:
-
-                    st.markdown(
-                        f"""
-                        <div class="check-item">
-                            ⚠️ {section_name}
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
+                icon = "✅" if found else "⚠️"
+                st.markdown(
+                    f"""
+                    <div class="check-item">
+                        {icon} {section_name}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
         # =================================================
         # RECOMMENDATIONS
@@ -1143,9 +1055,7 @@ if analyze_button:
             unsafe_allow_html=True
         )
 
-
         for recommendation in recommendations:
-
             st.markdown(
                 f"""
                 <div class="recommendation">
@@ -1155,14 +1065,10 @@ if analyze_button:
                 unsafe_allow_html=True
             )
 
-
         # =================================================
         # EXTRACTED RESUME TEXT
         # =================================================
-        with st.expander(
-            "📄 View extracted resume text"
-        ):
-
+        with st.expander("📄 View extracted resume text"):
             st.text_area(
                 "Resume Text",
                 resume_text,
