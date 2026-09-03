@@ -196,8 +196,9 @@ def render_score_card(title, value, icon):
 # =========================================================
 @st.cache_resource
 def load_ai_model():
-    return SentenceTransformer("all-MiniLM-L6-v2")
+    return SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 
+model = load_ai_model()
 
 model = load_ai_model()
 
@@ -236,6 +237,7 @@ skills_list = [
     "flask",
     "django",
     "fastapi",
+
     "machine learning",
     "deep learning",
     "artificial intelligence",
@@ -247,6 +249,7 @@ skills_list = [
     "scikit-learn",
     "pandas",
     "numpy",
+
     "git",
     "github",
     "docker",
@@ -257,16 +260,50 @@ skills_list = [
     "raspberry pi",
     "robotics",
     "unity",
+
+    "cybersecurity",
+    "information security",
+    "soc analyst",
+    "security operations center",
+    "network security",
+    "incident response",
+    "threat analysis",
+    "vulnerability assessment",
+    "siem",
+    "splunk",
+    "firewall",
+    "intrusion detection",
+    "penetration testing",
+    "ethical hacking",
+    "network monitoring",
+
     "database design",
     "software testing",
     "problem solving",
     "communication",
-    "teamwork",
+    "teamwork"
 ]
-
 skill_aliases = {
-    "artificial intelligence": ["artificial intelligence", "ai"],
-    "machine learning": ["machine learning", "ml"],
+    "artificial intelligence": [
+        "artificial intelligence", "ai",
+        "الذكاء الاصطناعي"
+    ],
+
+    "machine learning": [
+        "machine learning", "ml",
+        "تعلم الآلة", "التعلم الآلي"
+    ],
+
+    "data analysis": [
+        "data analysis",
+        "تحليل البيانات"
+    ],
+
+    "data science": [
+        "data science",
+        "علم البيانات"
+    ],
+
     "javascript": ["javascript", "java script", "js"],
     "typescript": ["typescript", "type script", "ts"],
     "scikit-learn": ["scikit-learn", "scikit learn", "sklearn"],
@@ -280,8 +317,125 @@ skill_aliases = {
     "css": ["css", "css3"],
     "c++": ["c++", "cpp"],
     "c#": ["c#", "c sharp"],
-}
 
+    "cybersecurity": [
+        "cybersecurity",
+        "cyber security",
+        "الأمن السيبراني",
+        "امن سيبراني"
+    ],
+
+    "information security": [
+        "information security",
+        "infosec",
+        "أمن المعلومات",
+        "امن المعلومات"
+    ],
+
+    "soc analyst": [
+        "soc analyst",
+        "security operations analyst",
+        "محلل soc",
+        "محلل مركز العمليات الأمنية",
+        "محلل مركز العمليات الامنية"
+    ],
+
+    "security operations center": [
+        "security operations center",
+        "soc",
+        "مركز العمليات الأمنية",
+        "مركز العمليات الامنية"
+    ],
+
+    "network security": [
+        "network security",
+        "أمن الشبكات",
+        "امن الشبكات"
+    ],
+
+    "incident response": [
+        "incident response",
+        "الاستجابة للحوادث",
+        "استجابة للحوادث"
+    ],
+
+    "threat analysis": [
+        "threat analysis",
+        "threat intelligence",
+        "تحليل التهديدات",
+        "استخبارات التهديدات"
+    ],
+
+    "vulnerability assessment": [
+        "vulnerability assessment",
+        "vulnerability analysis",
+        "تقييم الثغرات",
+        "تحليل الثغرات"
+    ],
+
+    "siem": [
+        "siem",
+        "security information and event management",
+        "إدارة معلومات وأحداث الأمن",
+        "ادارة معلومات واحداث الامن"
+    ],
+
+    "splunk": ["splunk"],
+
+    "firewall": [
+        "firewall",
+        "firewalls",
+        "جدار الحماية",
+        "جدران الحماية"
+    ],
+
+    "intrusion detection": [
+        "intrusion detection",
+        "ids",
+        "ips",
+        "كشف التسلل",
+        "منع التسلل"
+    ],
+
+    "penetration testing": [
+        "penetration testing",
+        "pentesting",
+        "pentest",
+        "اختبار الاختراق"
+    ],
+
+    "ethical hacking": [
+        "ethical hacking",
+        "الاختراق الأخلاقي",
+        "الاختراق الاخلاقي"
+    ],
+
+    "network monitoring": [
+        "network monitoring",
+        "مراقبة الشبكات",
+        "مراقبة الشبكة"
+    ],
+
+    "problem solving": [
+        "problem solving",
+        "حل المشكلات",
+        "حل المشاكل"
+    ],
+
+    "communication": [
+        "communication",
+        "communication skills",
+        "مهارات التواصل",
+        "التواصل"
+    ],
+
+    "teamwork": [
+        "teamwork",
+        "team work",
+        "العمل الجماعي",
+        "العمل ضمن فريق"
+    ]
+}
 
 def normalize_text(text):
     text = text.lower()
