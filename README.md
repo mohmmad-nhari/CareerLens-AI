@@ -1,258 +1,101 @@
-\# 🤖 AI Resume Matcher
+# 🧠 CareerLens AI
 
+**AI-Powered Resume & Job Matching Platform**
 
+CareerLens AI is an intelligent resume analysis application that compares a candidate's resume with a job description using Natural Language Processing (NLP), multilingual semantic similarity, and skill matching.
 
-AI Resume Matcher is an AI-powered web application that analyzes resumes against job descriptions using Natural Language Processing (NLP) and semantic similarity.
+The application helps candidates understand how well their resume matches a job and identifies skills that may need improvement.
 
+## 🚀 Features
 
+- 📄 PDF resume text extraction
+- 🎯 Resume-to-job skill matching
+- 🌐 Arabic and English job description support
+- 🧠 AI-powered multilingual semantic similarity
+- 📊 Overall job match score
+- 📈 ATS readiness analysis
+- ✅ Matched skills detection
+- 🟡 Related skills detection
+- ❌ Missing skills detection
+- 💡 Smart resume recommendations
+- 📋 Detailed score breakdown
+- 🌙 Modern Streamlit interface
 
-\## 🚀 Features
+## 🧠 How It Works
 
+CareerLens AI analyzes a resume and job description through multiple components:
 
+1. Extracts text from the uploaded PDF resume.
+2. Detects technical and professional skills.
+3. Compares resume skills with job requirements.
+4. Uses a multilingual Sentence Transformer model to measure semantic similarity between the resume and job description.
+5. Evaluates resume structure for ATS readiness.
+6. Generates skill-gap insights and personalized recommendations.
 
-\- 📄 Extract text from PDF resumes
+### Overall Match
 
-\- 🎯 Resume-to-job skill matching
+The overall match score combines:
 
-\- 🧠 AI-powered semantic similarity analysis
+- **60% Skill Matching**
+- **40% Semantic Similarity**
 
-\- 📊 Overall Match Score
+This provides both keyword/skill-based and AI-powered contextual analysis.
 
-\- 📈 Estimated ATS Readiness
+## 🛠️ Technologies
 
-\- ✅ Matched Skills detection
+- Python
+- Streamlit
+- Sentence Transformers
+- Natural Language Processing (NLP)
+- Hugging Face
+- PyPDF
+- Git
+- GitHub
 
-\- ❌ Missing Skills detection
+## 🤖 AI Model
 
-\- 📋 Resume Section Analysis
+CareerLens AI uses:
 
-\- 💡 Smart recommendations for resume improvement
+`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`
 
-\- 🌐 Modern interactive web interface
+The multilingual model enables semantic comparison between resumes and job descriptions written in different languages, including **Arabic and English**.
 
+## 📊 Analysis Results
 
+The application provides:
 
-\## 🧠 How It Works
+- Overall Match Score
+- Skills Match Score
+- Semantic AI Score
+- ATS Readiness Score
+- Score Breakdown
+- Matched Skills
+- Related Skills
+- Missing Skills
+- Resume Structure Analysis
+- Smart Recommendations
 
+## 💻 Run Locally
 
-
-The application extracts text from a PDF resume and compares it with a job description.
-
-
-
-It combines:
-
-
-
-\- Skill-based matching
-
-\- Natural Language Processing (NLP)
-
-\- Semantic similarity
-
-\- Resume structure analysis
-
-\- ATS-oriented checks
-
-
-
-Semantic analysis is powered by the `all-MiniLM-L6-v2` Sentence Transformer model.
-
-
-
-\## 🛠️ Technologies Used
-
-
-
-\- Python
-
-\- Streamlit
-
-\- Sentence Transformers
-
-\- PyTorch
-
-\- Torchvision
-
-\- Scikit-learn
-
-\- PyPDF
-
-\- NLP
-
-\- HTML / CSS
-
-
-
-\## 📊 Analysis Results
-
-
-
-The application generates:
-
-
-
-\- Overall Match Score
-
-\- Skills Match Score
-
-\- Semantic AI Score
-
-\- ATS Readiness Estimate
-
-\- Matched Skills
-
-\- Missing Skills
-
-\- Resume Structure Analysis
-
-\- Smart Recommendations
-
-
-
-\## 💻 Run Locally
-
-
-
-Install the required libraries:
-
-
+Install the required dependencies:
 
 ```bash
-
-pip install -r requirements.txt  
-
-,
-
-\# 🤖 AI Resume Matcher | محلل السيرة الذاتية بالذكاء الاصطناعي
-
-
-
-AI Resume Matcher هو تطبيق ويب يعتمد على الذكاء الاصطناعي لتحليل السيرة الذاتية ومقارنتها بالوصف الوظيفي باستخدام معالجة اللغة الطبيعية (NLP) والتحليل الدلالي.
-
-
-
-\## 🚀 مميزات المشروع
-
-
-
-\- 📄 استخراج النص من السيرة الذاتية بصيغة PDF
-
-\- 🎯 مقارنة مهارات السيرة الذاتية بمتطلبات الوظيفة
-
-\- 🧠 تحليل التشابه الدلالي باستخدام الذكاء الاصطناعي
-
-\- 📊 حساب نسبة التوافق الإجمالية
-
-\- 📈 تقدير جاهزية السيرة الذاتية لأنظمة ATS
-
-\- ✅ اكتشاف المهارات المتوافقة
-
-\- ❌ اكتشاف المهارات المطلوبة غير الموجودة
-
-\- 📋 تحليل أقسام السيرة الذاتية
-
-\- 💡 تقديم توصيات ذكية لتحسين السيرة الذاتية
-
-\- 🌐 واجهة ويب حديثة وسهلة الاستخدام
-
-
-
-\## 🧠 كيف يعمل المشروع؟
-
-
-
-يقوم التطبيق باستخراج النص من ملف السيرة الذاتية PDF، ثم يقارنه بالوصف الوظيفي الذي يدخله المستخدم.
-
-
-
-يعتمد التحليل على:
-
-
-
-\- مطابقة المهارات
-
-\- معالجة اللغة الطبيعية (NLP)
-
-\- التحليل الدلالي للنصوص
-
-\- تحليل هيكل السيرة الذاتية
-
-\- فحوصات مرتبطة بجاهزية ATS
-
-
-
-يستخدم المشروع نموذج:
-
-
-
-`all-MiniLM-L6-v2`
-
-
-
-من Sentence Transformers لإجراء تحليل التشابه الدلالي بين السيرة الذاتية والوصف الوظيفي.
-
-
-
-\## 🛠️ التقنيات المستخدمة
-
-
-
-\- Python
-
-\- Streamlit
-
-\- Sentence Transformers
-
-\- PyTorch
-
-\- Torchvision
-
-\- Scikit-learn
-
-\- PyPDF
-
-\- NLP
-
-\- HTML / CSS
-
-
-
-\## 📊 النتائج التي يقدمها التطبيق
-
-
-
-يعرض التطبيق:
-
-
-
-\- نسبة التوافق الإجمالية
-
-\- نسبة توافق المهارات
-
-\- نسبة التشابه الدلالي بالذكاء الاصطناعي
-
-\- تقدير جاهزية ATS
-
-\- المهارات المتوافقة
-
-\- المهارات المفقودة
-
-\- تحليل أقسام السيرة الذاتية
-
-\- توصيات ذكية للتحسين
-
-
-
-\## 💻 تشغيل المشروع محليًا
-
-
-
-تثبيت المكتبات المطلوبة:
-
-
-
-```bash
-
 pip install -r requirements.txt
+```
 
+Run the application:
+
+```bash
+python -m streamlit run app.py
+```
+
+## ⚠️ Disclaimer
+
+CareerLens AI provides estimated resume and job-match insights for informational purposes. The ATS readiness score is not an official score from an employer or Applicant Tracking System.
+
+## 👨‍💻 Developer
+
+**Mohmmad Nhari**
+
+Computer Science Graduate  
+Interested in Artificial Intelligence, Software Development, and intelligent applications.
